@@ -9,10 +9,10 @@ var currentId = 4;
 
 var Ctx = Morearty.createContext({
   initialState: {
-    words: [],
+    words: ['oijoijsdf:oioijsdf', 'oijoijsdf:poijasdf', 'oijsdf:poijasdf'],
     cursor: {
-      idx: 0,
-      value: ''
+      idx: 2,
+      value: 'oijojoji'
     }
   }
 });
@@ -69,26 +69,26 @@ function stateUpdate(op){
 }
 
 
-setTimeout(function(){
+// setTimeout(function(){
 
-  sharejs.open('words3', 'json', function(error, doc) {
-	  $state = doc;
-	  doc.on('change', function (op) {
-		  stateUpdate(op)
-	  })
-	  if (doc.created) {
-      console.log('doc newly created')
-		  //clear()
-		  //doc.submitOp([{p:[],od:null,oi:{words:[]}}])
-      doc.set({words: []})
-      console.log('and the document is ', JSON.stringify(doc.get()))
-	  } else {
-		  stateUpdate()
-	  }
-	  begin()
-  })
+//   sharejs.open('words3', 'json', function(error, doc) {
+// 	  $state = doc;
+// 	  doc.on('change', function (op) {
+// 		  stateUpdate(op)
+// 	  })
+// 	  if (doc.created) {
+//       console.log('doc newly created')
+// 		  //clear()
+// 		  //doc.submitOp([{p:[],od:null,oi:{words:[]}}])
+//       doc.set({words: []})
+//       console.log('and the document is ', JSON.stringify(doc.get()))
+// 	  } else {
+// 		  stateUpdate()
+// 	  }
+// 	  begin()
+//   })
 
-}, 0.1*1000)
+// }, 0.1*1000)
 
 
 function begin(){
@@ -130,7 +130,7 @@ var App = React.createClass({
 
     return (
       <section id='wordsapp'>
-        <WordsInput binding={ binding } />
+        <WordsInput className='jjj' binding={ binding }/>
       </section>
     );
   }
@@ -141,140 +141,140 @@ var WordsInput = React.createClass({
 
   mixins: [Morearty.Mixin],
 
-  componentDidMount: function(){
-    this.focus()
-  },
+  // componentDidMount: function(){
+  //   this.focus()
+  // },
 
-  focus: function(){
-    this.refs.myinput.getDOMNode().focus()
-  },
+  // focus: function(){
+  //   this.refs.myinput.getDOMNode().focus()
+  // },
 
-  onMouseDown: function(event){
-    console.log('mousedown')
-    this.focus()
-    event.stopPropagation()
-    event.preventDefault()
-  },
+  // onMouseDown: function(event){
+  //   console.log('mousedown')
+  //   this.focus()
+  //   event.stopPropagation()
+  //   event.preventDefault()
+  // },
 
-  onKeyDown: function(event){
+  // onKeyDown: function(event){
 
-    // console.log('keydown',event)
-    var e = {
-      _type: 'down',
-      keyCode: event.keyCode,
-      charCode: event.charCode
-    }
-    console.log(JSON.stringify(e))
-    event.stopPropagation()
+  //   // console.log('keydown',event)
+  //   var e = {
+  //     _type: 'down',
+  //     keyCode: event.keyCode,
+  //     charCode: event.charCode
+  //   }
+  //   console.log(JSON.stringify(e))
+  //   event.stopPropagation()
 
-    if(event.keyCode < 65 || 90 <event.keyCode){
-      if(event.keyCode === 37){
-        // move caret left
+  //   if(event.keyCode < 65 || 90 <event.keyCode){
+  //     if(event.keyCode === 37){
+  //       // move caret left
 
-        var c = this.getDefaultBinding().sub('cursor')
-        var cv = c.get().toJS()
+  //       var c = this.getDefaultBinding().sub('cursor')
+  //       var cv = c.get().toJS()
 
-        if(0 < cv.idx && cv.value === ''){
-          c.update('idx', function(ov){return cv.idx-1})
-        }
+  //       if(0 < cv.idx && cv.value === ''){
+  //         c.update('idx', function(ov){return cv.idx-1})
+  //       }
         
-      } else if (event.keyCode === 39){
-        // move caret right
-        var c = this.getDefaultBinding().sub('cursor')
-        var ww = this.getDefaultBinding().sub('words').get().toJS()
-        var cv = c.get().toJS()
+  //     } else if (event.keyCode === 39){
+  //       // move caret right
+  //       var c = this.getDefaultBinding().sub('cursor')
+  //       var ww = this.getDefaultBinding().sub('words').get().toJS()
+  //       var cv = c.get().toJS()
 
-        if(cv.idx < ww.length && cv.value === ''){
-          c.update('idx', function(ov){return cv.idx+1})
-        }
-      }else if(event.keyCode === 0x20){
-        // space
-        var c = this.getDefaultBinding().sub('cursor')
-        var cv = c.get().toJS()
+  //       if(cv.idx < ww.length && cv.value === ''){
+  //         c.update('idx', function(ov){return cv.idx+1})
+  //       }
+  //     }else if(event.keyCode === 0x20){
+  //       // space
+  //       var c = this.getDefaultBinding().sub('cursor')
+  //       var cv = c.get().toJS()
 
-        // console.log('cursor value', JSON.stringify(cv))
+  //       // console.log('cursor value', JSON.stringify(cv))
 
-        if(cv.value !== ''){
-          c.update(function(){
-            return Immutable.Map({
-              idx:cv.idx, //+1,
-              value:''
-            })
-          })
+  //       if(cv.value !== ''){
+  //         c.update(function(){
+  //           return Immutable.Map({
+  //             idx:cv.idx, //+1,
+  //             value:''
+  //           })
+  //         })
 
-          $state.submitOp({p:['words', cv.idx], li: clientid+':'+cv.value})
+  //         $state.submitOp({p:['words', cv.idx], li: clientid+':'+cv.value})
 
-        }
+  //       }
 
-      } else if (event.keyCode === 8){
-        // backspace
-        var c = this.getDefaultBinding().sub('cursor')
-        var cv = c.get().toJS()
+  //     } else if (event.keyCode === 8){
+  //       // backspace
+  //       var c = this.getDefaultBinding().sub('cursor')
+  //       var cv = c.get().toJS()
 
-        var wb = this.getDefaultBinding().sub('words')
+  //       var wb = this.getDefaultBinding().sub('words')
         
-        if(cv.value === ''){
-          // remove word to the left
-          if(0 < cv.idx){
+  //       if(cv.value === ''){
+  //         // remove word to the left
+  //         if(0 < cv.idx){
 
-            $state.removeAt(['words', cv.idx-1])
+  //           $state.removeAt(['words', cv.idx-1])
             
-            c.update(function(ov){
-              return ov.set('idx', cv.idx-1)
-            })
+  //           c.update(function(ov){
+  //             return ov.set('idx', cv.idx-1)
+  //           })
             
-          }
-        } else {
-          c.update(function(ov){
-            return ov.set('value', cv.value.slice(0,-1))
-          })
-        }
+  //         }
+  //       } else {
+  //         c.update(function(ov){
+  //           return ov.set('value', cv.value.slice(0,-1))
+  //         })
+  //       }
         
-      } else if (event.keyCode === 46){
-        // delete
-        var c = this.getDefaultBinding().sub('cursor')
-        var cv = c.get().toJS()
-        var wb = this.getDefaultBinding().sub('words')
-        var ww = wb.get()
+  //     } else if (event.keyCode === 46){
+  //       // delete
+  //       var c = this.getDefaultBinding().sub('cursor')
+  //       var cv = c.get().toJS()
+  //       var wb = this.getDefaultBinding().sub('words')
+  //       var ww = wb.get()
         
-        if(cv.value === ''){
-          // remove word to the right
-          if(cv.idx < ww.count()){
+  //       if(cv.value === ''){
+  //         // remove word to the right
+  //         if(cv.idx < ww.count()){
 
-            $state.removeAt(['words', cv.idx])
+  //           $state.removeAt(['words', cv.idx])
 
-          }
-        }
+  //         }
+  //       }
         
-      }
+  //     }
 
-      event.preventDefault()
-    }
-  },
+  //     event.preventDefault()
+  //   }
+  // },
 
-  onKeyPress: function(event){
-    // console.log('keydown',event)
-    var e = {
-      _type: 'press',
-      keyCode: event.keyCode,
-      charCode: event.charCode
-    }
-    //console.log(JSON.stringify(e))
-    var keyValue = String.fromCharCode(event.charCode)
+  // onKeyPress: function(event){
+  //   // console.log('keydown',event)
+  //   var e = {
+  //     _type: 'press',
+  //     keyCode: event.keyCode,
+  //     charCode: event.charCode
+  //   }
+  //   //console.log(JSON.stringify(e))
+  //   var keyValue = String.fromCharCode(event.charCode)
 
-    var cb = this.getDefaultBinding().sub('cursor.value')
-    cb.update(function(v){
-      return v+keyValue
-    })
+  //   var cb = this.getDefaultBinding().sub('cursor.value')
+  //   cb.update(function(v){
+  //     return v+keyValue
+  //   })
     
-    event.stopPropagation()
-    event.preventDefault()
-  },
+  //   event.stopPropagation()
+  //   event.preventDefault()
+  // },
 
-  onKeyUp: function(event){
-    event.stopPropagation()
-    event.preventDefault()
-  },
+  // onKeyUp: function(event){
+  //   event.stopPropagation()
+  //   event.preventDefault()
+  // },
 
   render: function () {
     var binding = this.getDefaultBinding();
