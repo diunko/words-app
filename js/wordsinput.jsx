@@ -7,24 +7,9 @@ var _ = require("./words")
 var Word = _.Word
 var EatenWord = _.EatenWord
 
+var generator = require('./generator')
+
 var Keys = require('./keys').Keys
-
-
-var words_dict = require('./dict')
-
-function get_words_list(data){
-  var words_list = []
-  for(var w in data){
-    var i = data[w]
-    while(0<i--){
-      words_list.push(w)
-    }
-  }
-  return words_list
-}
-
-var words_list = get_words_list(words_dict)
-
 
 var STRIDE_LENGTH = 40
 var START = 0
@@ -35,16 +20,6 @@ var clientid = __uid()
 function __uid(){
   return Math.floor((Math.random()*0x100000000)).toString(36)  
 }
-
-function words_random_list(words_list, len){
-  var result = []
-  while(0 < len--){
-    var idx = Math.floor(Math.random()*words_list.length)
-    result.push(words_list[idx])
-  }
-  return result
-}
-
 
 
 var WordsInput = React.createClass({
@@ -224,9 +199,10 @@ var WordsInput = React.createClass({
       // console.log('cursor value', JSON.stringify(cv))
       
     },
+
     enter: function(){
 
-      var WORDS = words_random_list(words_list, STRIDE_LENGTH).map(function(w){
+      var WORDS = generator.words_random_list(STRIDE_LENGTH).map(function(w){
         return clientid+':'+w
       })
 
