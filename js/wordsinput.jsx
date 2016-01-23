@@ -7,6 +7,8 @@ var _ = require("./words")
 var Word = _.Word
 var EatenWord = _.EatenWord
 
+var Keys = require('./keys').Keys
+
 
 var words_dict = require('./dict')
 
@@ -25,6 +27,8 @@ var words_list = get_words_list(words_dict)
 
 
 var STRIDE_LENGTH = 40
+var START = 0
+
 
 var clientid = __uid()
 
@@ -43,12 +47,10 @@ function words_random_list(words_list, len){
 
 
 
-var START = 0
-
 var WordsInput = React.createClass({
   displayName: 'WordsInput',
 
-  mixins: [Morearty.Mixin],
+  mixins: [Morearty.Mixin, Keys],
 
   componentDidMount: function(){
     this.focus()
@@ -65,21 +67,9 @@ var WordsInput = React.createClass({
     event.preventDefault()
   },
 
-  onKeyDown: function(event){
+  onInput: function(key, event){
 
-    // console.log('keydown',event)
-    var e = {
-      _type: 'down',
-      keyCode: event.keyCode,
-      charCode: event.charCode
-    }
-    console.log(JSON.stringify(e))
-    event.stopPropagation()
-
-    if(event.keyCode < 65 || 90 <event.keyCode){
-      if(event.keyCode === 39){
-        // right arrow
-
+    if(key === "right"){
         var binding = this.getDefaultBinding()
         var c = binding.sub('cursor')
         var cv = c.get().toJS()
@@ -95,12 +85,7 @@ var WordsInput = React.createClass({
             })
           })
         }
-        
-        // console.log('cursor value', JSON.stringify(cv))
-
-      } else if(event.keyCode === 0x20){
-        // space
-
+    } else if(key === "space") {
         var binding = this.getDefaultBinding()
 
         var c = binding.sub('cursor')
@@ -173,9 +158,7 @@ var WordsInput = React.createClass({
         }
         
         // console.log('cursor value', JSON.stringify(cv))
-
-
-      }  else if (event.keyCode === 13){
+    } else if(key === "enter"){
 
         var WORDS = words_random_list(words_list, STRIDE_LENGTH).map(function(w){
           return clientid+':'+w
@@ -194,9 +177,8 @@ var WordsInput = React.createClass({
         })
 
         $stats.set(stats0)
-
-      }  else if(event.keyCode === 8){
-        // backspace
+      
+    } else if(key === "backspace"){
 
         var binding = this.getDefaultBinding()
 
@@ -233,14 +215,8 @@ var WordsInput = React.createClass({
           } else {
             $state.submitOp({p:['eaten', ee.count()-1], ld: w})
           }
-
-
-          
-
         }
-
-      } else if (event.keyCode === 46){
-        // delete
+    } else if (key === "delete"){
         var c = this.getDefaultBinding().sub('cursor')
         var cv = c.get().toJS()
         var wb = this.getDefaultBinding().sub('words')
@@ -254,62 +230,50 @@ var WordsInput = React.createClass({
 
           }
         }
-        
+    } else if(key === "character"){
+
+      var e = {
+        _type: 'press',
+        keyCode: event.keyCode,
+        charCode: event.charCode
       }
+      //console.log(JSON.stringify(e))
+      var keyValue = String.fromCharCode(event.charCode)
 
-      event.preventDefault()
-    }
-  },
+      var cb = this.getDefaultBinding().sub('cursor')
+      var cv = cb.get().toJS()
 
-  onKeyPress: function(event){
-    // console.log('keydown',event)
-    var e = {
-      _type: 'press',
-      keyCode: event.keyCode,
-      charCode: event.charCode
-    }
-    //console.log(JSON.stringify(e))
-    var keyValue = String.fromCharCode(event.charCode)
+      if(cv.left !== ''){
 
-    var cb = this.getDefaultBinding().sub('cursor')
-    var cv = cb.get().toJS()
-
-    if(cv.left !== ''){
-
-      if (START === 0){
-        START = Date.now()
+        if (START === 0){
+          START = Date.now()
+        }
+        
+        if (cv.left[0] === keyValue){
+          cb.update(function(v){
+            return Immutable.Map({
+              idx:0,
+              left:cv.left.slice(1),
+              eaten: cv.eaten+cv.left[0],
+              value:'',
+              body: cv.body
+            })
+          })
+        } else {
+          cb.update(function(v){
+            return Immutable.Map({
+              idx:0,
+              left:cv.left,
+              eaten: cv.eaten,
+              value:'',
+              body: cv.body-1
+            })
+          })
+        }
       }
       
-      if (cv.left[0] === keyValue){
-        cb.update(function(v){
-          return Immutable.Map({
-            idx:0,
-            left:cv.left.slice(1),
-            eaten: cv.eaten+cv.left[0],
-            value:'',
-            body: cv.body
-          })
-        })
-      } else {
-        cb.update(function(v){
-          return Immutable.Map({
-            idx:0,
-            left:cv.left,
-            eaten: cv.eaten,
-            value:'',
-            body: cv.body-1
-          })
-        })
-      }
     }
     
-    event.stopPropagation()
-    event.preventDefault()
-  },
-
-  onKeyUp: function(event){
-    event.stopPropagation()
-    event.preventDefault()
   },
 
   render: function () {

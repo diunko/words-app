@@ -2,7 +2,6 @@
 var Morearty = require('morearty');
 var React = window.React = require('react/addons');
 
-
 var Word = React.createClass({
   displayName: 'Word',
 
