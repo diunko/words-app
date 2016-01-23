@@ -87,7 +87,9 @@ setTimeout(function(){
           })
 
           try {
-            fs.writeFileSync('./stats.json', JSON.stringify(db, null, 2))
+            var data = JSON.stringify(db, null, 2)
+            fs.writeFileSync('./stats.json', data)
+            fs.writeFileSync('./js/stats.js', 'module.exports = ' + data)
           } catch (e){
             // ignore
           }
