@@ -40,7 +40,7 @@ var Keys = {
 
       } else if (event.keyCode === 46){
         // delete
-        this.onInput("delete")
+        this.onInput("del")
         
       }
 
