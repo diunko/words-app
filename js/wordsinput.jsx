@@ -1,4 +1,5 @@
 
+var Router = require("director").Router
 var Morearty = require('morearty');
 var React = window.React = require('react/addons');
 var Immutable = require('immutable');
@@ -15,7 +16,7 @@ var STRIDE_LENGTH = 40
 var START = 0
 
 
-var clientid = __uid()
+var clientid = window.$clientid = __uid()
 
 function __uid(){
   return Math.floor((Math.random()*0x100000000)).toString(36)  
@@ -27,7 +28,17 @@ var WordsInput = React.createClass({
 
   mixins: [Morearty.Mixin, Keys],
 
-  componentDidMount: function(){
+
+  componentDidMount: function () {
+    var binding = this.getDefaultBinding();
+
+    Router({
+      '/:docId': function(docid){
+        window.$docid = docid
+        console.log("docId", docid)
+      }
+    }).init();
+
     this.focus()
   },
 
@@ -57,6 +68,8 @@ var WordsInput = React.createClass({
     var ww = wwb.get()
     var ee = eeb.get()
 
+    var cb = binding.sub('cursor')
+
     function renderCursor(){
       var cb = binding.sub('cursor')
       return <Word binding={cb} cursor={true}/>
@@ -70,13 +83,12 @@ var WordsInput = React.createClass({
     }
 
     function renderWords(ww){
-      var cr = renderCursor()
 
       //var ci = binding.get('cursor.idx')
       //return ww.map(renderWord).splice(ci, 0, cr)
       var nn = ww.map(renderWord)
 
-      return       nn.unshift(cr)
+      return nn
     }
 
     function renderEatenWord(w, idx){
@@ -86,6 +98,22 @@ var WordsInput = React.createClass({
 
     function renderEatenWords(ee){
       return ee.map(renderEatenWord)
+    }
+
+    function renderTokens(){
+
+      var cr = renderCursor()
+      var wwn = renderWords(ww)
+      var een = renderEatenWords(ee)
+
+      var ttn = een.toArray().concat(wwn.toArray())
+
+      var cv = cb.get().toJS()
+
+      ttn.splice(cv.idx, 0, cr)
+
+      return ttn
+      
     }
 
     return (
@@ -99,8 +127,7 @@ var WordsInput = React.createClass({
              onKeyPress={this.onKeyPress} />
         </div>
         <div className='words-list' >
-          { renderEatenWords(ee).toArray() }
-          { renderWords(ww).toArray() }
+          { renderTokens() }
         </div>
       </section>
     );
@@ -113,14 +140,12 @@ var WordsInput = React.createClass({
       var cv = c.get().toJS()
 
       if (cv.eaten === '' && cv.left !== '') {
-        c.update(function(){
-          return Immutable.Map({
-            idx:0,
-            left:'',
-            eaten: cv.left,
-            value: '',
-            body: cv.body
-          })
+        $state.setAt(["cursor"], {
+          idx:cv.idx,
+          left:'',
+          eaten: cv.left,
+          value: '',
+          body: cv.body
         })
       }
     },
@@ -146,33 +171,27 @@ var WordsInput = React.createClass({
 
           var w = ww.get(0)
 
-          c.update(function(){
-            return Immutable.Map({
-              idx:0,
-              eaten:'',
-              left:w.split(':')[1],
-              value:'',
-              body: 0
-              //body: cv.body+0.33333333
-            })
+          $state.setAt(["cursor"], {
+            idx: cv.idx+1,
+            eaten:'',
+            left:w.split(':')[1],
+            value:'',
+            body: 0
+            //body: cv.body+0.33333333
           })
-
           $state.submitOp({p:['eaten', 100000], li: t+':'+cv.eaten})
           $state.submitOp({p:['words', 0], ld: w})
           
         } else {
           
-          c.update(function(){
-            return Immutable.Map({
-              idx:0,
-              eaten:'',
-              left:'',
-              value:'',
-              body: 0
-              //body: cv.body+0.33333333
-            })
+          $state.setAt(["cursor"], {
+            idx:cv.idx+1,
+            eaten:'',
+            left:'',
+            value:'',
+            body: 0
+            //body: cv.body+0.33333333
           })
-
           $state.submitOp({p:['eaten', 100000], li: t+':'+cv.eaten})
 
         }
@@ -184,14 +203,12 @@ var WordsInput = React.createClass({
 
         START = 0
         
-        c.update(function(){
-          return Immutable.Map({
-            idx:0,
-            left:w.split(':')[1],
-            eaten:'',
-            value: '',
-            body: cv.body
-          })
+        $state.setAt(["cursor"],{
+          idx:0,
+          left:w.split(':')[1],
+          eaten:'',
+          value: '',
+          body: cv.body
         })
 
         $state.submitOp({p:['words', 0], ld: w})
@@ -244,14 +261,12 @@ var WordsInput = React.createClass({
 
         var w = ee.get(ee.count()-1)
 
-        c.update(function(){
-          return Immutable.Map({
-            idx:0,
-            eaten:'',
-            left:w.split(':')[1],
-            value:'',
-            body: cv.body
-          })
+        $state.setAt(["cursor"],{
+          idx:cv.idx-1,
+          eaten:'',
+          left:w.split(':')[1],
+          value:'',
+          body: cv.body
         })
 
         if (cv.left !== ''){
@@ -298,24 +313,22 @@ var WordsInput = React.createClass({
         }
         
         if (cv.left[0] === keyValue){
-          cb.update(function(v){
-            return Immutable.Map({
-              idx:0,
-              left:cv.left.slice(1),
-              eaten: cv.eaten+cv.left[0],
-              value:'',
-              body: cv.body
-            })
+
+          $state.setAt(["cursor"], {
+            idx:cv.idx,
+            left:cv.left.slice(1),
+            eaten: cv.eaten+cv.left[0],
+            value:'',
+            body: cv.body
           })
+
         } else {
-          0 && cb.update(function(v){
-            return Immutable.Map({
-              idx:0,
-              left:cv.left,
-              eaten: cv.eaten,
-              value:'',
-              body: cv.body-1
-            })
+          0 && $state.setAt(["cursor"], {
+            idx:0,
+            left:cv.left,
+            eaten: cv.eaten,
+            value:'',
+            body: cv.body-1
           })
         }
       }

@@ -31,7 +31,7 @@ var $stats
 
 var wwb = Ctx.getBinding().sub('words')
 var eeb = Ctx.getBinding().sub('eaten')
-var ccb = Ctx.getBinding().sub('cursor')
+var cb = Ctx.getBinding().sub('cursor')
 
 function stateUpdate(op){
   if(op){
@@ -41,13 +41,16 @@ function stateUpdate(op){
       var p = o.p
       if(p.length === 0){
         if (o.oi.words && o.oi.eaten && (o.od === null || (o.od.words && o.od.eaten))){
+
+          console.log("first op")
+          
           wwb.update(function(ww0){
             return Immutable.List(o.oi.words)
           })
           eeb.update(function(ww0){
             return Immutable.List(o.oi.eaten)
           })
-          ccb.update(function(c){
+          cb.update(function(c){
             return Immutable.Map({
               idx:0,
               eaten:'',
@@ -59,7 +62,7 @@ function stateUpdate(op){
         }
       } else if(p.length === 2 && p[0] === 'words' && typeof p[1] === 'number'){
         console.log('words op', JSON.stringify(o))
-        console.log('cursor', JSON.stringify(ccb.get().toJS()))
+        console.log('cursor', JSON.stringify(cb.get().toJS()))
         if('li' in o && 'ld' in o){
           wwb.update(function(ww0){
             return ww0.splice(p[1],1,o.li)
@@ -92,6 +95,11 @@ function stateUpdate(op){
         } else {
           console.log('bad match, reject op')
         }
+      } else if (p.length === 1 && p[0] === "cursor"){
+        console.log("cursor op")
+        cb.update(function(c0){
+          return Immutable.Map(o.oi)
+        })
       }
     })
   } else {
@@ -104,30 +112,46 @@ function stateUpdate(op){
       var ww1 = $state.snapshot.eaten
       return ww0.concat(ww1)
     })
+    cb.update(function(cc0){
+      return Immutable.Map($state.snapshot.cursor)
+    })
   }
 }
 
 
 setTimeout(function(){
 
-  sharejs.open('words3', 'json', function(error, doc) {
-	  window.$state = $state = doc;
-	  doc.on('change', function (op) {
-		  stateUpdate(op)
-	  })
-	  if (doc.created) {
+  var docId = window.$docid || "words3"
+
+  console.log("opening doc", docId)
+
+  sharejs.open(docId, 'json', function(error, doc) {
+	window.$state = $state = doc;
+	doc.on('change', function (op) {
+	  stateUpdate(op)
+	})
+	if (doc.created) {
       console.log('doc newly created')
-		  //clear()
-		  //doc.submitOp([{p:[],od:null,oi:{words:[]}}])
+	  //clear()
+	  //doc.submitOp([{p:[],od:null,oi:{words:[]}}])
+      
       doc.set({
         eaten: [],
         words: ['danya:testing'],
+        cursor: {
+          idx: 0,
+          eaten: '',
+          left: '',
+          value: '',
+          body:0
+        }
       })
+
       console.log('and the document is ', JSON.stringify(doc.get()))
-	  } else {
-		  stateUpdate()
-	  }
-	  setTimeout(begin, 1000)
+	} else {
+	  stateUpdate()
+	}
+	setTimeout(begin, 1000)
   })
 
   sharejs.open('stats', 'json', function(error, doc) {
