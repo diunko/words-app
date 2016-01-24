@@ -70,8 +70,8 @@ var WordsInput = React.createClass({
 
     var cb = binding.sub('cursors.'+$clientid)
 
-    function renderCursor(cb){
-      return <Word binding={cb} cursor={true}/>
+    function renderCursor(cb, isself){
+      return <Word binding={cb} cursor={true} self={isself}/>
     }
 
     var renderWord = function(w,idx){
@@ -147,7 +147,12 @@ var WordsInput = React.createClass({
         var cid = c[0]
         var cv = c[1]
         var cb = ccb.sub(cid)
-        ttn.splice(cv.idx+i, 0, renderCursor(cb))
+        if(cid === $clientid){
+          ttn.splice(cv.idx+i, 0, renderCursor(cb, true))
+        } else {
+          ttn.splice(cv.idx+i, 0, renderCursor(cb, false))
+        }
+        
       })
       
       return ttn

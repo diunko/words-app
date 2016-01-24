@@ -26,8 +26,14 @@ var Word = React.createClass({
 
       var body = binding.get('body')
       var s = '==========================================='.slice(0,Math.floor(body))
+
+      if(this.props.self){
+        var className = 'word cursor self'
+      } else {
+        var className = 'word cursor'
+      }
       
-      return (<div className='word cursor'>
+      return (<div className={className}>
           <span className='eaten'>{ eaten+'|'+s }</span>
           <span className='blink'>|</span>
           <span className='left'>{ left }</span>
