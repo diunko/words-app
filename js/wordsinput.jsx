@@ -204,6 +204,14 @@ var WordsInput = React.createClass({
           })
           $state.submitOp({p:['eaten', cv.idx], li: t+':'+cv.eaten})
           $state.submitOp({p:['words', 0], ld: w})
+
+          var c = this.getDefaultBinding().get("cursors").toJS()
+
+          for(var cid in c){
+            if(cid !== $clientid && cv.idx < c[cid].idx){
+              $state.setAt(["cursors", cid, "idx"], c[cid].idx+1)
+            }
+          }
           
         } else {
           
