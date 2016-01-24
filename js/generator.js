@@ -75,7 +75,25 @@ function words_random_list_freq_reverse(len){
   
 }
 
-var words_random_list = words_random_list_freq_reverse
+//var words_random_list = words_random_list_freq_reverse
+
+function randomize(gen_fn, len){
+  var list = gen_fn(20)
+
+  var result = []
+  while(0 < len--){
+    var idx = Math.floor(Math.random()*list.length)
+    result.push(list[idx])
+  }
+  return result
+  
+}
+
+function words_random_list(len){
+
+  return randomize(words_random_list_freq_reverse, len)
+  
+}
 
 
 

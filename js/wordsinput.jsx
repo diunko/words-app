@@ -152,7 +152,8 @@ var WordsInput = React.createClass({
               eaten:'',
               left:w.split(':')[1],
               value:'',
-              body: cv.body+0.33333333
+              body: 0
+              //body: cv.body+0.33333333
             })
           })
 
@@ -167,7 +168,8 @@ var WordsInput = React.createClass({
               eaten:'',
               left:'',
               value:'',
-              body: cv.body+0.33333333
+              body: 0
+              //body: cv.body+0.33333333
             })
           })
 
@@ -306,7 +308,7 @@ var WordsInput = React.createClass({
             })
           })
         } else {
-          cb.update(function(v){
+          0 && cb.update(function(v){
             return Immutable.Map({
               idx:0,
               left:cv.left,
