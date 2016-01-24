@@ -31,6 +31,8 @@ var Ctx = (function(){
   });
 })()
 
+window.$appctx = Ctx
+
 
 // var Ctx = Morearty.createContext({
 //   initialState: {
@@ -135,6 +137,12 @@ function stateUpdate(op){
         ccb.sub(p[1]).update(function(c0){
           return Immutable.Map(o.oi)
         })
+      } else if (p.length === 3 && p[0] === "cursors" && p[2] === "idx") {
+        console.log("cursors idx op", o)
+        console.log("setting offset to", o.oi)
+        ccb.sub(p[1]+".idx").update(function(){
+          return o.oi
+        })
       } else {
         console.log("unknown op", op)
       }
@@ -182,7 +190,7 @@ setTimeout(function(){
       
       doc.set({
         eaten: [],
-        words: ['danya:testing'],
+        words: [],
         cursor: {
           idx: 0,
           eaten: '',
