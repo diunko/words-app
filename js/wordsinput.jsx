@@ -126,7 +126,21 @@ var WordsInput = React.createClass({
       }
 
       sortedCC = sortedCC.sort(function(c0, c1){
-        return c0[1].idx - c1[1].idx
+        var d = c0[1].idx - c1[1].idx
+        if(d !== 0){
+          return d
+        } else {
+          console.log("comparing: ", c0, c1)
+          var v0 = c0[1].eaten + c0[1].left
+          var v1 = c1[1].eaten + c1[1].left
+          if (v0 < v1){
+            return -1
+          } else if (v1 < v0){
+            return 1
+          } else {
+            return 0
+          }
+        }
       })
 
       sortedCC.some(function(c, i){
