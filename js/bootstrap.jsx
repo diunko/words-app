@@ -11,3 +11,6 @@ React.render(
   Bootstrap(),
   document.getElementById('root')
 );
+
+window.Immutable = require("immutable")
+
