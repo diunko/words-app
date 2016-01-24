@@ -16,7 +16,7 @@ var STRIDE_LENGTH = 40
 var START = 0
 
 
-var clientid = window.$clientid = __uid()
+var clientid = window.$clientid = (window.$clientid || __uid())
 
 function __uid(){
   return Math.floor((Math.random()*0x100000000)).toString(36)  
@@ -68,10 +68,10 @@ var WordsInput = React.createClass({
     var ww = wwb.get()
     var ee = eeb.get()
 
-    var cb = binding.sub('cursor')
+    var cb = binding.sub('cursors.'+$clientid)
 
     function renderCursor(){
-      var cb = binding.sub('cursor')
+      var cb = binding.sub('cursors.'+$clientid)
       return <Word binding={cb} cursor={true}/>
       
     }
@@ -136,11 +136,11 @@ var WordsInput = React.createClass({
   inputHandlers: {
     right: function(){
       var binding = this.getDefaultBinding()
-      var c = binding.sub('cursor')
+      var c = binding.sub('cursors.'+$clientid)
       var cv = c.get().toJS()
 
       if (cv.eaten === '' && cv.left !== '') {
-        $state.setAt(["cursor"], {
+        $state.setAt(["cursors", $clientid], {
           idx:cv.idx,
           left:'',
           eaten: cv.left,
@@ -152,7 +152,7 @@ var WordsInput = React.createClass({
     space: function(){
       var binding = this.getDefaultBinding()
 
-      var c = binding.sub('cursor')
+      var c = binding.sub('cursors.'+$clientid)
       var wwb = binding.sub('words')
       var eeb = binding.sub('eaten')
       var ww = wwb.get()
@@ -171,7 +171,7 @@ var WordsInput = React.createClass({
 
           var w = ww.get(0)
 
-          $state.setAt(["cursor"], {
+          $state.setAt(["cursors", $clientid], {
             idx: cv.idx+1,
             eaten:'',
             left:w.split(':')[1],
@@ -184,7 +184,7 @@ var WordsInput = React.createClass({
           
         } else {
           
-          $state.setAt(["cursor"], {
+          $state.setAt(["cursors", $clientid], {
             idx:cv.idx+1,
             eaten:'',
             left:'',
@@ -203,7 +203,7 @@ var WordsInput = React.createClass({
 
         START = 0
         
-        $state.setAt(["cursor"],{
+        $state.setAt(["cursors", $clientid],{
           idx:0,
           left:w.split(':')[1],
           eaten:'',
@@ -232,10 +232,15 @@ var WordsInput = React.createClass({
         stats0[tw[1]] = parseInt(tw[0])
       })
 
-      $state.set({
-        words: WORDS,
-        eaten: []
+      $state.setAt(["cursors", $clientid],{
+        idx:0,
+        eaten:'',
+        left:'',
+        value:'',
+        body: 0
       })
+      $state.setAt(["words"], WORDS)
+      $state.setAt(["eaten"], [])
 
       $stats.set(stats0)
       
@@ -244,7 +249,7 @@ var WordsInput = React.createClass({
     backspace: function(){
       var binding = this.getDefaultBinding()
 
-      var c = binding.sub('cursor')
+      var c = binding.sub('cursors.'+$clientid)
       var wwb = binding.sub('words')
       var eeb = binding.sub('eaten')
       var ww = wwb.get()
@@ -261,7 +266,7 @@ var WordsInput = React.createClass({
 
         var w = ee.get(ee.count()-1)
 
-        $state.setAt(["cursor"],{
+        $state.setAt(["cursors", $clientid],{
           idx:cv.idx-1,
           eaten:'',
           left:w.split(':')[1],
@@ -279,7 +284,7 @@ var WordsInput = React.createClass({
     },
 
     del: function(){
-      var c = this.getDefaultBinding().sub('cursor')
+      var c = this.getDefaultBinding().sub('cursors.'+$clientid)
       var cv = c.get().toJS()
       var wb = this.getDefaultBinding().sub('words')
       var ww = wb.get()
@@ -303,7 +308,7 @@ var WordsInput = React.createClass({
       //console.log(JSON.stringify(e))
       var keyValue = String.fromCharCode(event.charCode)
 
-      var cb = this.getDefaultBinding().sub('cursor')
+      var cb = this.getDefaultBinding().sub('cursors.'+$clientid)
       var cv = cb.get().toJS()
 
       if(cv.left !== ''){
@@ -314,7 +319,7 @@ var WordsInput = React.createClass({
         
         if (cv.left[0] === keyValue){
 
-          $state.setAt(["cursor"], {
+          $state.setAt(["cursors", $clientid], {
             idx:cv.idx,
             left:cv.left.slice(1),
             eaten: cv.eaten+cv.left[0],
@@ -323,7 +328,7 @@ var WordsInput = React.createClass({
           })
 
         } else {
-          0 && $state.setAt(["cursor"], {
+          0 && $state.setAt(["cursors", $clientid], {
             idx:0,
             left:cv.left,
             eaten: cv.eaten,

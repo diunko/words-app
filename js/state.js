@@ -10,20 +10,41 @@ var EatenWord = words.EatenWord
 
 var WordsInput = require("./wordsinput").WordsInput
 
+var Ctx = (function(){
 
-var Ctx = Morearty.createContext({
-  initialState: {
-    eaten: [],
-    words: [],
-    cursor: {
-      idx: 0,
-      eaten: '',
-      left: '',
-      value: '',
-      body:0
-    }
+  var cursors = {}
+  cursors[$clientid] = {
+    idx: 0,
+    eaten: '',
+    left: '',
+    value: '',
+    body:0
   }
-});
+
+  return Morearty.createContext({
+    initialState: {
+      eaten: [],
+      words: [],
+      cursors: cursors,
+      cursor: cursors[$clientid]
+    }
+  });
+})()
+
+
+// var Ctx = Morearty.createContext({
+//   initialState: {
+//     eaten: [],
+//     words: [],
+//     cursor: {
+//       idx: 0,
+//       eaten: '',
+//       left: '',
+//       value: '',
+//       body:0
+//     }
+//   }
+// });
 
 var $state
 var $stats
@@ -32,6 +53,7 @@ var $stats
 var wwb = Ctx.getBinding().sub('words')
 var eeb = Ctx.getBinding().sub('eaten')
 var cb = Ctx.getBinding().sub('cursor')
+var ccb = Ctx.getBinding().sub('cursors')
 
 function stateUpdate(op){
   if(op){
@@ -95,11 +117,26 @@ function stateUpdate(op){
         } else {
           console.log('bad match, reject op')
         }
+      } else if(p.length === 1 && p[0] === "words") {
+        wwb.update(function(ww0){
+          return Immutable.List(o.oi)
+        })
+      } else if(p.length === 1 && p[0] === "eaten") {
+        eeb.update(function(ee0){
+          return Immutable.List(o.oi)
+        })
       } else if (p.length === 1 && p[0] === "cursor"){
         console.log("cursor op")
         cb.update(function(c0){
           return Immutable.Map(o.oi)
         })
+      } else if (p.length === 2 && p[0] === "cursors"){
+        console.log("cursors op", op)
+        ccb.sub(p[1]).update(function(c0){
+          return Immutable.Map(o.oi)
+        })
+      } else {
+        console.log("unknown op", op)
       }
     })
   } else {
@@ -134,6 +171,14 @@ setTimeout(function(){
       console.log('doc newly created')
 	  //clear()
 	  //doc.submitOp([{p:[],od:null,oi:{words:[]}}])
+      var cursors = {}
+      cursors[$clientid] = {
+        idx: 0,
+        eaten: '',
+        left: '',
+        value: '',
+        body:0
+      }
       
       doc.set({
         eaten: [],
@@ -144,7 +189,8 @@ setTimeout(function(){
           left: '',
           value: '',
           body:0
-        }
+        },
+        cursors: cursors
       })
 
       console.log('and the document is ', JSON.stringify(doc.get()))
